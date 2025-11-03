@@ -20,9 +20,18 @@ def calcular_umbral_iso(sigma_fabrica, gl, confianza=0.95):
 def calcular_estadisticas(df1, df2, sigma_fab_xy, sigma_fab_z, nro_rovers):
     """Calcula todas las estadísticas necesarias para la evaluación ISO"""
     resultados = {}
-    
-    n_series = df1['description'].nunique()
-    n_obs_por_serie = df1['description'].value_counts().iloc[0]
+    if 'code' in df1.columns:
+        col_id='code'
+    elif 'description' in df1.columns:
+        col_id='description'
+    else:
+        raise ValueError("Contactar con I+D (J.Aguero) por error no identificado en el DataFrame")
+    serie_id = df1[col_id].dropna().astype(str).str.strip()
+    if serie_id.empty:
+        raise ValueError(
+            f"La columna '{col_id}' no contiene datos válidos.")
+    n_series = df1['code'].nunique()
+    n_obs_por_serie = df1['code'].value_counts().iloc[0]
     resultados['gl'] = (n_series * n_obs_por_serie - 1) * nro_rovers
 
     # Cálculo de residuos
